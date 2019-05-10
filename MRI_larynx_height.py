@@ -190,7 +190,6 @@ def main(argv):
         cgx = np.zeros(data.shape[1]) # Preallocate numpy array
         for samp in range(0,data.shape[1]):
             cgx[samp] = sum( range(0,data.shape[0]) * data[:,samp] ) / sum( data[:,samp] ) # CoG for the frame
-        print(cgx)
         return cgx
 
     # Get the intensity values of the pixels along the selected line
