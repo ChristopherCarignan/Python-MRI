@@ -209,8 +209,7 @@ def main(argv):
         larynx[:,frame] = itbuffer[:,2]
 
     # Prepare the time-varying larynx height plot
-    fig = plt.figure()
-    plt.imshow(larynx)
+    fig = plt.imshow(larynx, interpolation='nearest')
     plt.axis('off')
 
     # If user wants to plot the COG, overlay it on the plot
@@ -221,7 +220,9 @@ def main(argv):
     # If user provides an output file name, save the larynx height plot
     if larynxplot != '':
         # Save it!
-        fig.savefig(larynxplot)
+        fig.axes.get_xaxis().set_visible(False)
+        fig.axes.get_yaxis().set_visible(False)
+        plt.savefig(larynxplot, bbox_inches='tight', pad_inches=0)
         # Plot it!
         plt.show()
     else:
