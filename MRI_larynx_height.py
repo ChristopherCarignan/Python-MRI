@@ -215,7 +215,7 @@ def main(argv):
     # If user wants to plot the COG, overlay it on the plot
     if cogplot != '':
         cgx = cog(larynx)
-        plt.scatter(range(0,larynx.shape[1]),cgx,c='red')
+        plt.plot(range(0,larynx.shape[1]), cgx, c='red', linewidth=4.0)
     
     # Plot it!
     plt.show(imgplot)
