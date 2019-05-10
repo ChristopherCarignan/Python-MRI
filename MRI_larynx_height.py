@@ -33,20 +33,23 @@ def main(argv):
     '''
     videofile = ''
     larynxplot = ''
+    cogplot = ''
     try:
-        # Check for input (-i) and output (-o) arguments
-        opts, args = getopt.getopt(argv,"hi:o:",["ifile=","ofile="])
+        # Check for input (-i), output (-o), and plot (-p) arguments
+        opts, args = getopt.getopt(argv,'hi:o:p:',['ifile=','ofile=','plot='])
     except getopt.GetoptError:
-        print('MRI_larynx_height.py -i <inputfile> -o <outputfile>')
+        print('MRI_larynx_height.py -i <inputfile> -o <outputfile> -p <plotoption>')
         sys.exit(2)
     for opt, arg in opts:
-        if opt == '-h':
-            print('MRI_larynx_height.py -i <inputfile> -o <outputfile>')
+        if opt == ('-h','--help'):
+            print('MRI_larynx_height.py -i <inputfile> -o <outputfile> -p <plotoption>')
             sys.exit()
-        elif opt in ("-i", "--ifile"):
+        elif opt in ('-i', '--ifile'):
             videofile = arg
-        elif opt in ("-o", "--ofile"):
+        elif opt in ('-o', '--ofile'):
             larynxplot = arg
+        elif opt in ('-p', '--plot'):
+            cogplot = arg
 
     # If MATLAB file, load and extract MRI images
     if videofile.endswith('.mat'):
@@ -180,10 +183,18 @@ def main(argv):
 
         return itbuffer
 
+    # Function to calculate center of gravity/mass (CoG) of signal
+    def cog(data):
+        cgx = np.zeros(data.shape[1]) # Preallocate numpy array
+        for samp in range(0,data.shape[1]):
+            cgx[samp] = sum( range(0,data.shape[0]) * data[:,samp] ) / sum( data[:,samp] ) # CoG for the frame
+        print(cgx)
+        return cgx
+
     # Get the intensity values of the pixels along the selected line
     itbuffer = createLineIterator(canvas.coords[0,:], canvas.coords[1,:], imgmat)
 
-    larynx = np.zeros((itbuffer.shape[0],video.shape[2])) # Preallocate numpy array
+    larynx = np.zeros((itbuffer.shape[0], video.shape[2])) # Preallocate numpy array
 
     # Arrange coordinates so that the y-axis always has the same orientation
     if canvas.coords[1,1] < canvas.coords[0,1]:
@@ -196,9 +207,16 @@ def main(argv):
         itbuffer = createLineIterator(canvas.coords[0,:], canvas.coords[1,:], I[::-1]) # Use vertically flipped frame
         larynx[:,frame] = itbuffer[:,2]
 
-    # Plot the time-varying larynx height
+    # Prepare the time-varying larynx height plot
     imgplot = plt.imshow(larynx)
     plt.axis('off')
+
+    # If user wants to plot the COG, overlay it on the plot
+    if cogplot != '':
+        cgx = cog(larynx)
+        plt.scatter(range(0,larynx.shape[1]),cgx,c='red')
+    
+    # Plot it!
     plt.show(imgplot)
 
     # If user provides an output file name, save the larynx height plot
