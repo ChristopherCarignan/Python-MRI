@@ -30,6 +30,8 @@ def main(argv):
     Arguments:
         - -i: File name of MRI (required)
         - -o: File name of time-varying plot (optional)
+        - -p: Plotting option 
+            - 10/05/19: CoG is currently only plotting option; more functionality to come (hopefully)
     '''
     videofile = ''
     larynxplot = ''
