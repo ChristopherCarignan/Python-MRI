@@ -213,7 +213,7 @@ def main(argv):
     plt.axis('off')
 
     # If user wants to plot the COG, overlay it on the plot
-    if cogplot != '':
+    if cogplot in ('cog','COG','CoG'):
         cgx = cog(larynx)
         plt.plot(range(0,larynx.shape[1]), cgx, c='red', linewidth=4.0)
     
