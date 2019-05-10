@@ -209,20 +209,24 @@ def main(argv):
         larynx[:,frame] = itbuffer[:,2]
 
     # Prepare the time-varying larynx height plot
-    imgplot = plt.imshow(larynx)
+    fig = plt.figure()
+    plt.imshow(larynx)
     plt.axis('off')
 
     # If user wants to plot the COG, overlay it on the plot
     if cogplot in ('cog','COG','CoG'):
         cgx = cog(larynx)
         plt.plot(range(0,larynx.shape[1]), cgx, c='red', linewidth=4.0)
-    
-    # Plot it!
-    plt.show(imgplot)
 
     # If user provides an output file name, save the larynx height plot
     if larynxplot != '':
-        mpimg.imsave(larynxplot, larynx)
+        # Save it!
+        fig.savefig(larynxplot)
+        # Plot it!
+        plt.show()
+    else:
+        # Plot it!
+        plt.show()
 
 if __name__ == "__main__":
     main(sys.argv[1:])
