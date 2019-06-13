@@ -68,8 +68,8 @@ def main(argv):
         video = matfile['data']
         maxval = np.max(video)
         for frame in range(video.shape[2]):
-            video[:,:,frame] = video[:,:,frame][::-1]
-            video[:,:,frame] = np.multiply(video[:,:,frame], 255/maxval)
+            video[:,:,frame] = video[:,:,frame][::-1] # flip the frames
+            video[:,:,frame] = np.multiply(video[:,:,frame], 255/maxval) # scale to 8-bit
         img = PIL.Image.fromarray(video[:,:,0]) # get first frame in video file, convert it to image
 
     # If numpy matrix, load it
@@ -77,8 +77,8 @@ def main(argv):
         video = np.load(videofile)
         maxval = np.max(video)
         for frame in range(video.shape[2]):
-            video[:,:,frame] = video[:,:,frame][::-1]
-            video[:,:,frame] = np.multiply(video[:,:,frame], 255/maxval)
+            video[:,:,frame] = video[:,:,frame][::-1] # flip the frames
+            video[:,:,frame] = np.multiply(video[:,:,frame], 255/maxval) # scale to 8-bit
         img = PIL.Image.fromarray(video[:,:,0]) # get first frame in video file, convert it to image
         
     # If neither MATLAB nor numpy matrix... I don't know how to help you, my friend :(
