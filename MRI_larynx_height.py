@@ -57,12 +57,21 @@ def main(argv):
     if videofile.endswith('.mat'):
         matfile = sio.loadmat(videofile)
         video = matfile['data']
-        imgmat = video[:,:,0] # Get first frame in video file
-        mpimg.imsave('MRI_img.png', imgmat) # Save frame
+        maxval = np.max(video)
+        for frame in range(video.shape[2]):
+            video[:,:,frame] = video[:,:,frame][::-1] # flip the frames
+            video[:,:,frame] = np.multiply(video[:,:,frame], 255/maxval) # scale to 8-bit
+        img = PIL.Image.fromarray(video[:,:,0]) # get first frame in video file, convert it to image
+
     # If numpy matrix, load it
     elif videofile.endswith('.npy'): 
         video = np.load(videofile)
-        imgmat = video[:,:,0]
+        maxval = np.max(video)
+        for frame in range(video.shape[2]):
+            video[:,:,frame] = video[:,:,frame][::-1] # flip the frames
+            video[:,:,frame] = np.multiply(video[:,:,frame], 255/maxval) # scale to 8-bit
+        img = PIL.Image.fromarray(video[:,:,0]) # get first frame in video file, convert it to image
+
     # If neither MATLAB nor numpy matrix... I don't know how to help you, my friend :(
     else:
         print('Unknown MRI video file type')
@@ -78,10 +87,9 @@ def main(argv):
     frame.pack(fill=BOTH,expand=1)
 
     # Adding the image to the canvas
-    img = PIL.Image.open('MRI_img.png') # Open image
-    img = img.transpose(PIL.Image.FLIP_TOP_BOTTOM) # Flip image vertically
-    img = ImageTk.PhotoImage(img) # Convert for tkinter canvas
-    canvas.create_image(0,0,image=img,anchor="nw") # Add to canvas
+    imgdata = np.asarray(img, dtype="uint8")
+    img = ImageTk.PhotoImage(img) # convert for tkinter canvas
+    canvas.create_image(0,0,image=img,anchor='nw') # add to canvas
 
     # Preallocate canvas attributes
     canvas.coords = np.array([[0,0],[0,0]])
@@ -193,7 +201,7 @@ def main(argv):
         return cgx
 
     # Get the intensity values of the pixels along the selected line
-    itbuffer = createLineIterator(canvas.coords[0,:], canvas.coords[1,:], imgmat)
+    itbuffer = createLineIterator(canvas.coords[0,:], canvas.coords[1,:], imgdata)
 
     larynx = np.zeros((itbuffer.shape[0], video.shape[2])) # Preallocate numpy array
 
@@ -205,7 +213,7 @@ def main(argv):
     # Plot the results over time (x-axis)
     for frame in range(0,int(video.shape[2])):
         I = video[:,:,frame] # Get MRI frame
-        itbuffer = createLineIterator(canvas.coords[0,:], canvas.coords[1,:], I[::-1]) # Use vertically flipped frame
+        itbuffer = createLineIterator(canvas.coords[0,:], canvas.coords[1,:], I)
         larynx[:,frame] = itbuffer[:,2]
 
     # Prepare the time-varying larynx height plot
